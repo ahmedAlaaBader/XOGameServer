@@ -44,6 +44,7 @@ public class StartStopServerBase extends AnchorPane {
         stopBtn = createButton("Stop");
         stopBtn.addEventHandler(ActionEvent.ACTION, (ActionEvent event) -> {
             selectStatus = stopBtn.getText();
+            
         });
 
         startBtn = createButton("Start");
@@ -51,7 +52,7 @@ public class StartStopServerBase extends AnchorPane {
             selectStatus = startBtn.getText();
         });
 
-        VBox buttonContainer = new VBox(20, startBtn, stopBtn);
+        VBox buttonContainer = new VBox(20,stopBtn, startBtn );
         buttonContainer.setAlignment(Pos.CENTER);
         buttonContainer.setPrefWidth(BUTTON_WIDTH);
         buttonContainer.setMaxWidth(BUTTON_WIDTH);
@@ -81,7 +82,7 @@ public class StartStopServerBase extends AnchorPane {
         getChildren().add(backGroundPic);
         getChildren().add(mainContainer);
 
-        // Add CSS
+        
         this.getStylesheets().add(getClass().getResource("style.css").toExternalForm());
         this.getStyleClass().add("background");
     }

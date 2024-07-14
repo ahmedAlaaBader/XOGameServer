@@ -26,26 +26,44 @@ public class DAL {
             stmt.executeUpdate();
         }
     }
-
     
 
+    public static void signUp(String username, String email, String password) throws SQLException {
+        String sql = "INSERT INTO XOGameVerOne (USERNAME, EMAIL, PASSWORD) VALUES (?, ?, ?)";
+        try (
+            Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)){
+            stmt.setString(1, username);
+            stmt.setString(2, email);
+            stmt.setString(3, password);
+            stmt.executeUpdate();
+        }
+        //login(username, password);
+    }
+
     public static String checkSignIn(String userName, String password) throws SQLException {
-        if (!checkIsActive(userName)) {
-            String sql = "SELECT * FROM XOGameVerOne WHERE USERNAME = ?";
-            try (
-                Connection conn = getConnection();
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, userName);
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    return password.equals(rs.getString("PASSWORD")) ? "Logged in successfully" : "Password is incorrect";
+    if (!checkIsActive(userName)) {
+        String sql = "SELECT * FROM XOGameVerOne WHERE USERNAME = ?";
+        try (
+            Connection conn = getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, userName);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                if (password.equals(rs.getString("PASSWORD"))) {
+                    login(userName, password);
+                    return "Logged in successfully";
+                } else {
+                    return "Password is incorrect";
                 }
+            } else {
                 return "UserName is incorrect";
             }
-        } else {
-            return "This UserName is already signed-in";
         }
+    } else {
+        return "This UserName is already signed-in";
     }
+}
 
     public static boolean checkIsActive(String userName) throws SQLException {
         String sql = "SELECT ACTIVE FROM XOGameVerOne WHERE USERNAME = ?";
@@ -69,7 +87,7 @@ public class DAL {
         }
     }*/
     
-    public static String checkSignUp(String username, String email) throws SQLException {
+    public static String checkSignUp(String username, String email,String password) throws SQLException {
     
     String usernameSql = "SELECT * FROM XOGameVerOne WHERE USERNAME = ?";
     String emailSql = "SELECT * FROM XOGameVerOne WHERE EMAIL = ?";
@@ -92,7 +110,7 @@ public class DAL {
                 return "Email already registered";
             }
         }
-        
+        signUp(username,email,password);
         return "Registered Successfully";
     }
 }

@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 
 public class ServerSideForXoGame extends Application {
     private ServerSocket myServerSocket;
+    private Thread thread;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -33,9 +34,13 @@ public class ServerSideForXoGame extends Application {
                         startServer();
                     }
                 } else if ("Stop".equals(checkState)) {
-                    if (myServerSocket != null && !myServerSocket.isClosed()) {
+                    if ((myServerSocket != null )&& (!myServerSocket.isClosed())) {
                         try {
+                            
                             myServerSocket.close();
+                            if (thread != null) {
+                             thread.interrupt();
+                             }
                         } catch (IOException ex) {
                             Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
                         }
@@ -55,18 +60,30 @@ public class ServerSideForXoGame extends Application {
     }
 
     private void startServer() {
-        try {
-            myServerSocket = new ServerSocket(5013);
-            System.out.println("Server listening on port 5013");
+        thread = new Thread(() -> {
+            try {
+                myServerSocket = new ServerSocket(5013);
+                System.out.println("Server listening on port 5013");
 
-            while (true) {
-                Socket mySocket = myServerSocket.accept();
-                new ServerHandler(mySocket).start();
+                while (!myServerSocket.isClosed()) {
+                    try {
+                        Socket mySocket = myServerSocket.accept();
+                        new ServerHandler(mySocket).start();
+                    } catch (IOException e) {
+                        if (myServerSocket.isClosed()) {
+                            System.out.println("Server stopped.");
+                        } else {
+                            Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, e);
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (IOException ex) {
-            Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        });
+        thread.start();
     }
+
 
     public static void main(String[] args) {
         launch(args);
@@ -88,24 +105,60 @@ public class ServerSideForXoGame extends Application {
         @Override
         public void run() {
             // you can call your function here to reach your logic for example you can make function for login and call it here 
-            try {
-                String username = myDataInputStream.readUTF();
-                String password = myDataInputStream.readUTF();
-                String myMassage = null;
+           try {
+               String type = myDataInputStream.readUTF();
+                String username;
+                String myMassage ;
+                String email;
+                String password;
+               
+               switch (type) {
+                case "Login":
+                username = myDataInputStream.readUTF();
+                password = myDataInputStream.readUTF();
                 try {
-                    myMassage = DAL.checkSignIn(username, password);
-                } catch (SQLException ex) {
-                    Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                myDataOutStream.writeUTF(username);
+                   myMassage = new String(DAL.checkSignIn(username, password));
+                   myDataOutStream.writeUTF(myMassage);
+               } catch (SQLException ex) { 
+                   Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
+               }
+                break;
+                case "SignUp":
+                    username = myDataInputStream.readUTF();
+                    email = myDataInputStream.readUTF();
+                    password = myDataInputStream.readUTF();
+               {
+                   try {
+                       myMassage = new String( DAL.checkSignUp(username, email, password));
+                       myDataOutStream.writeUTF(myMassage);
+                       
+                   } catch (SQLException ex) {
+                       Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
+                   }
+               }
+                    break;
+        }
+                
+               
+                
+                
+                
 
-                if (myMassage.equals("Logged in successfully")) {
-                    try {
-                        DAL.login(username, password);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } 
+                
+//                try {
+//                    myMassage = DAL.checkSignIn(username, password);
+//                } catch (SQLException ex) {
+//                    Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+//              if (authenticate(username,password)){
+//                myDataOutStream.writeUTF(myMassage);
+//              }
+//              else  myDataOutStream.writeUTF("cant loggin");
+
+
+//                if (myMassage.equals("Logged in successfully")) {
+                    
+//                } 
             } catch (IOException ex) {
                 Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
@@ -119,11 +172,11 @@ public class ServerSideForXoGame extends Application {
         }
 
         // For testing purposes, replace with your actual authentication logic
-        private final String validUsername = "Ahmed";
-        private final String validPassword = "123";
-
-        private boolean authenticate(String username, String password) {
-            return validUsername.equals(username) && validPassword.equals(password);
-        }
+//        private final String validUsername = "Ahmed";
+//        private final String validPassword = "123";
+//
+//        private boolean authenticate(String username, String password) {
+//            return validUsername.equals(username) && validPassword.equals(password);
+//        }
     }
 }

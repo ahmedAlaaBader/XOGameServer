@@ -91,21 +91,24 @@ public class ServerSideForXoGame extends Application {
             try {
                 String username = myDataInputStream.readUTF();
                 String password = myDataInputStream.readUTF();
-                String myMassage = null;
-                try {
-                    myMassage = DAL.checkSignIn(username, password);
-                } catch (SQLException ex) {
-                    Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                String myMassage = new String("Logged in successfully");
+//                try {
+//                    myMassage = DAL.checkSignIn(username, password);
+//                } catch (SQLException ex) {
+//                    Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
+//                }
+              if (authenticate(username,password)){
                 myDataOutStream.writeUTF(myMassage);
+              }
+              else  myDataOutStream.writeUTF("cant loggin");
 
-                if (myMassage.equals("Logged in successfully")) {
-                    try {
-                        DAL.login(username, password);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                } 
+//                if (myMassage.equals("Logged in successfully")) {
+//                    try {
+//                        DAL.login(username, password);
+//                    } catch (SQLException ex) {
+//                        Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                } 
             } catch (IOException ex) {
                 Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
             } finally {

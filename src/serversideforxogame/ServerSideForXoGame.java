@@ -5,12 +5,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
 public class ServerSideForXoGame extends Application {
@@ -26,19 +26,14 @@ public class ServerSideForXoGame extends Application {
 
         // note that this code for test you may need some function to reach your logic
         Thread statusCheckThread = new Thread(() -> {
-            while (true)
-            {
+            while (true) {
                 String checkState = StartStopServerBase.selectStatus;
-                if ("Start".equals(checkState)) 
-                {
-                    if (myServerSocket == null || myServerSocket.isClosed())
-                    {
+                if ("Start".equals(checkState)) {
+                    if (myServerSocket == null || myServerSocket.isClosed()) {
                         startServer();
                     }
-                } else if ("Stop".equals(checkState))
-                {
-                    if (myServerSocket != null && !myServerSocket.isClosed())
-                    {
+                } else if ("Stop".equals(checkState)) {
+                    if (myServerSocket != null && !myServerSocket.isClosed()) {
                         try {
                             myServerSocket.close();
                         } catch (IOException ex) {
@@ -61,8 +56,8 @@ public class ServerSideForXoGame extends Application {
 
     private void startServer() {
         try {
-            myServerSocket = new ServerSocket(5007);
-            System.out.println("Server listening on port 5007");
+            myServerSocket = new ServerSocket(5015);
+            System.out.println("Server listening on port 5015");
 
             while (true) {
                 Socket mySocket = myServerSocket.accept();
@@ -92,16 +87,25 @@ public class ServerSideForXoGame extends Application {
 
         @Override
         public void run() {
-            //you can call your function here to reach your logic for example you can make function for login and call it here 
+            // you can call your function here to reach your logic for example you can make function for login and call it here 
             try {
                 String username = myDataInputStream.readUTF();
                 String password = myDataInputStream.readUTF();
-
-                if (authenticate(username, password)) {
-                    myDataOutStream.writeUTF("Login successful");
-                } else {
-                    myDataOutStream.writeUTF("Login failed");
+                String myMassage = null;
+                try {
+                    myMassage = DAL.checkSignIn(username, password);
+                } catch (SQLException ex) {
+                    Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
                 }
+                myDataOutStream.writeUTF(myMassage);
+
+                if (myMassage.equals("Logged in successfully")) {
+                    try {
+                        DAL.login(username, password);
+                    } catch (SQLException ex) {
+                        Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } 
             } catch (IOException ex) {
                 Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);
             } finally {
@@ -113,7 +117,8 @@ public class ServerSideForXoGame extends Application {
                 }
             }
         }
-        //for testing only you can make another function to reach your logic
+
+        // For testing purposes, replace with your actual authentication logic
         private final String validUsername = "Ahmed";
         private final String validPassword = "123";
 

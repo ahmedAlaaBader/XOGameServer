@@ -27,18 +27,7 @@ public class DAL {
         }
     }
 
-    public static void signUp(String username, String email, String password) throws SQLException {
-        String sql = "INSERT INTO XOGameVerOne (USERNAME, EMAIL, PASSWORD) VALUES (?, ?, ?)";
-        try (
-            Connection conn = getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)){
-            stmt.setString(1, username);
-            stmt.setString(2, email);
-            stmt.setString(3, password);
-            stmt.executeUpdate();
-        }
-        //login(username, password);
-    }
+    
 
     public static String checkSignIn(String userName, String password) throws SQLException {
         if (!checkIsActive(userName)) {

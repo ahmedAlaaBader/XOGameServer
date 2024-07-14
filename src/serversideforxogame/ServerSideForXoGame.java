@@ -56,8 +56,8 @@ public class ServerSideForXoGame extends Application {
 
     private void startServer() {
         try {
-            myServerSocket = new ServerSocket(5015);
-            System.out.println("Server listening on port 5015");
+            myServerSocket = new ServerSocket(5013);
+            System.out.println("Server listening on port 5013");
 
             while (true) {
                 Socket mySocket = myServerSocket.accept();
@@ -97,7 +97,7 @@ public class ServerSideForXoGame extends Application {
                 } catch (SQLException ex) {
                     Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                myDataOutStream.writeUTF(myMassage);
+                myDataOutStream.writeUTF(username);
 
                 if (myMassage.equals("Logged in successfully")) {
                     try {

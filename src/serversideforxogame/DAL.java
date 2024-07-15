@@ -6,7 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import xogameverone.DTO.Player;
+import serversideforxogame.DTO.Player;
 
 public class DAL {
 

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -13,9 +14,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+
 public class ServerSideForXoGame extends Application {
     private ServerSocket myServerSocket;
     private Thread thread;
+    static Vector<ServerClint> usersVector = new Vector<>();
+   
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -135,9 +139,18 @@ public class ServerSideForXoGame extends Application {
                    } catch (SQLException ex) {
                        Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
                    }
+                   
                }
                     break;
+                    
+                        
         }
+            ServerHandler handler= new ServerHandler();
+           if(type.contains(",,")){
+           for(ServerHandler handler : usersVector ){
+           handler.myDataOutStream.writeUTF(type);
+           }
+           }
                 
                
                 

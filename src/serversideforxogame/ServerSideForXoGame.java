@@ -18,7 +18,9 @@ import javafx.stage.Stage;
 public class ServerSideForXoGame extends Application {
     private ServerSocket myServerSocket;
     private Thread thread;
-    static Vector<ServerClint> usersVector = new Vector<>();
+    static Vector<ServerHandler> usersVector = new Vector<>();
+    static Vector<ServerSideForXoGame> onlineUsers = new Vector<>();
+
    
 
     @Override
@@ -93,10 +95,10 @@ public class ServerSideForXoGame extends Application {
         launch(args);
     }
 
-    class ServerHandler extends Thread {
+        class ServerHandler extends Thread {
         private DataInputStream myDataInputStream;
         private DataOutputStream myDataOutStream;
-
+        public ServerHandler(){}
         public ServerHandler(Socket socket) {
             try {
                 myDataInputStream = new DataInputStream(socket.getInputStream());
@@ -145,7 +147,7 @@ public class ServerSideForXoGame extends Application {
                     
                         
         }
-            ServerHandler handler= new ServerHandler();
+           
            if(type.contains(",,")){
            for(ServerHandler handler : usersVector ){
            handler.myDataOutStream.writeUTF(type);

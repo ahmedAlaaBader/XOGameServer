@@ -1,5 +1,4 @@
 package serversideforxogame;
-
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -137,6 +136,30 @@ public class ServerSideForXoGame extends Application {
                    }
                }
                     break;
+                  case "/request":
+    try {
+        String receiverName = myDataInputStream.readUTF();
+        String requestMessage = myDataInputStream.readUTF();
+        
+        for (ActivePlayersBase receiver : players) {
+            if (receiver.getPlayerName().equals(receiverName)) {
+                receiver.sendRequest(requestMessage);
+                String response = receiver.waitForResponse();
+                
+                if (response.equals("Accepted")) {
+                    myDataOutStream.writeUTF("Request accepted by " + receiverName);
+                } else {
+                    myDataOutStream.writeUTF("Request declined by " + receiverName);
+                }
+                break;  
+            }
+        }
+    } catch (IOException ex) {
+        Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    break;
+
+
         }
                 
                

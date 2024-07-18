@@ -38,7 +38,6 @@ public class DAL {
             stmt.setString(3, password);
             stmt.executeUpdate();
         }
-        //login(username, password);
     }
 
     public static String checkSignIn(String userName, String password) throws SQLException {
@@ -75,17 +74,6 @@ public class DAL {
             return rs.next() && rs.getBoolean("ACTIVE");
         }
     }
-    
-    /*public static String checkSignUp(String username, String email) throws SQLException {
-        String sql = "SELECT * FROM XOGameVerOne WHERE USERNAME = ? AND EMAIL = ?";
-        try (Connection conn = getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, username);
-            stmt.setString(2, email);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next()? "already signed-up" : "Registered Successfully";
-        }
-    }*/
     
     public static String checkSignUp(String username, String email,String password) throws SQLException {
     
@@ -138,51 +126,42 @@ public class DAL {
         }
     }
     
-    public static ArrayList<Player> getActivePlayers() throws SQLException {
-        ArrayList<Player> activePlayersList = new ArrayList<>();
-        String sql = "SELECT * FROM XOGameVerOne WHERE ACTIVE = true";
-        try (
-             Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+    public static ArrayList<String> getActivePlayerUsernames() throws SQLException {
+    ArrayList<String> activePlayerUsernames = new ArrayList<>();
+    String sql = "SELECT USERNAME FROM XOGameVerOne WHERE ACTIVE = true";
 
-            while (rs.next()) {
-                String userName = rs.getString("USERNAME");
-                String email = rs.getString("EMAIL");
-                String password = rs.getString("PASSWORD");
-                int score = rs.getInt("SCORE");
-                boolean active = rs.getBoolean("ACTIVE");
-                boolean inActive = rs.getBoolean("INACTIVE");
-                Player player = new Player(userName, email, password, score, active, inActive);
-                activePlayersList.add(player);
-            }
+    try (
+        Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery()) {
+
+        while (rs.next()) {
+            String userName = rs.getString("USERNAME");
+            activePlayerUsernames.add(userName);
         }
-        return activePlayersList;
     }
+    return activePlayerUsernames;
+   }
 
-    public static ArrayList<Player> getInactivePlayers() throws SQLException {
-        ArrayList<Player> inactivePlayersList = new ArrayList<>();
-        String sql = "SELECT * FROM XOGameVerOne WHERE ACTIVE = false";
-        try (
-            Connection conn = getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery()) {
+    
+    public static ArrayList<String> getInactivePlayerUsernames() throws SQLException {
+    ArrayList<String> inactivePlayerUsernames = new ArrayList<>();
+    String sql = "SELECT USERNAME FROM XOGameVerOne WHERE ACTIVE = false";
 
-            while (rs.next()) {
-                String userName = rs.getString("USERNAME");
-                String email = rs.getString("EMAIL");
-                String password = rs.getString("PASSWORD");
-                int score = rs.getInt("SCORE");
-                boolean active = rs.getBoolean("ACTIVE");
-                boolean inActive = rs.getBoolean("INACTIVE");
-                Player player = new Player(userName, email, password, score, active, inActive);
-                inactivePlayersList.add(player);
-            }
+    try (
+        Connection conn = getConnection();
+        PreparedStatement stmt = conn.prepareStatement(sql);
+        ResultSet rs = stmt.executeQuery()) {
+
+        while (rs.next()) {
+            String userName = rs.getString("USERNAME");
+            inactivePlayerUsernames.add(userName);
         }
-        return inactivePlayersList;
+        }   
+    return inactivePlayerUsernames;
     }
     
-    public static void signOut(String userName) throws SQLException {
+     public static void signOut(String userName) throws SQLException {
         String sql = "UPDATE XOGameVerOne SET ACTIVE = false WHERE USERNAME = ?";
         try (
             Connection conn = getConnection();
@@ -191,6 +170,53 @@ public class DAL {
             stmt.executeUpdate();
         }
     }
+
+    
+//    public static ArrayList<Player> getActivePlayers() throws SQLException {
+//        ArrayList<Player> activePlayersList = new ArrayList<>();
+//        String sql = "SELECT * FROM XOGameVerOne WHERE ACTIVE = true";
+//        try (
+//             Connection conn = getConnection();
+//             PreparedStatement stmt = conn.prepareStatement(sql);
+//             ResultSet rs = stmt.executeQuery()) {
+//
+//            while (rs.next()) {
+//                String userName = rs.getString("USERNAME");
+//                String email = rs.getString("EMAIL");
+//                String password = rs.getString("PASSWORD");
+//                int score = rs.getInt("SCORE");
+//                boolean active = rs.getBoolean("ACTIVE");
+//                boolean inActive = rs.getBoolean("INACTIVE");
+//                Player player = new Player(userName, email, password, score, active, inActive);
+//                activePlayersList.add(player);
+//            }
+//        }
+//        return activePlayersList;
+//    }
+
+//    public static ArrayList<Player> getInactivePlayers() throws SQLException {
+//        ArrayList<Player> inactivePlayersList = new ArrayList<>();
+//        String sql = "SELECT * FROM XOGameVerOne WHERE ACTIVE = false";
+//        try (
+//            Connection conn = getConnection();
+//            PreparedStatement stmt = conn.prepareStatement(sql);
+//            ResultSet rs = stmt.executeQuery()) {
+//
+//            while (rs.next()) {
+//                String userName = rs.getString("USERNAME");
+//                String email = rs.getString("EMAIL");
+//                String password = rs.getString("PASSWORD");
+//                int score = rs.getInt("SCORE");
+//                boolean active = rs.getBoolean("ACTIVE");
+//                boolean inActive = rs.getBoolean("INACTIVE");
+//                Player player = new Player(userName, email, password, score, active, inActive);
+//                inactivePlayersList.add(player);
+//            }
+//        }
+//        return inactivePlayersList;
+//    }
+//    
+   
 
     /* public static String getEmail(String userName) throws SQLException {
         String sql = "SELECT EMAIL FROM XOGameVerOne WHERE USERNAME = ?";

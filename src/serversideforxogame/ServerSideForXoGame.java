@@ -1,5 +1,6 @@
 package serversideforxogame;
 
+import game.GameManager;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,14 +15,12 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-
 public class ServerSideForXoGame extends Application {
+
     private ServerSocket myServerSocket;
     private Thread thread;
     static Vector<ServerHandler> usersVector = new Vector<>();
     static Vector<ServerSideForXoGame> onlineUsers = new Vector<>();
-
-   
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -40,19 +39,19 @@ public class ServerSideForXoGame extends Application {
                         startServer();
                     }
                 } else if ("Stop".equals(checkState)) {
-                    if ((myServerSocket != null )&& (!myServerSocket.isClosed())) {
+                    if ((myServerSocket != null) && (!myServerSocket.isClosed())) {
                         try {
-                            
+
                             myServerSocket.close();
                             if (thread != null) {
-                             thread.interrupt();
-                             }
+                                thread.interrupt();
+                            }
                         } catch (IOException ex) {
                             Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
                         }
                     }
                 }
-                
+
                 // Add a delay between checks to avoid high CPU usage
                 try {
                     Thread.sleep(1000); // Adjust delay as needed
@@ -90,15 +89,17 @@ public class ServerSideForXoGame extends Application {
         thread.start();
     }
 
-
     public static void main(String[] args) {
         launch(args);
     }
 
-        class ServerHandler extends Thread {
+    class ServerHandler extends Thread {
         private DataInputStream myDataInputStream;
         private DataOutputStream myDataOutStream;
-        public ServerHandler(){}
+
+        public ServerHandler() {
+        }
+
         public ServerHandler(Socket socket) {
             try {
                 myDataInputStream = new DataInputStream(socket.getInputStream());
@@ -111,56 +112,48 @@ public class ServerSideForXoGame extends Application {
         @Override
         public void run() {
             // you can call your function here to reach your logic for example you can make function for login and call it here 
-           try {
-               String type = myDataInputStream.readUTF();
+            try {
+                String type = myDataInputStream.readUTF();
                 String username;
-                String myMassage ;
+                String myMassage;
                 String email;
                 String password;
-               
-               switch (type) {
-                case "Login":
-                username = myDataInputStream.readUTF();
-                password = myDataInputStream.readUTF();
-                onlineUsers.add(new ServerSideForXoGame());
-                try {
-                   myMassage = new String(DAL.checkSignIn(username, password));
-                   myDataOutStream.writeUTF(myMassage);
-               } catch (SQLException ex) { 
-                   Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
-               }
-                break;
-                case "SignUp":
-                    username = myDataInputStream.readUTF();
-                    email = myDataInputStream.readUTF();
-                    password = myDataInputStream.readUTF();
-               {
-                   try {
-                       myMassage = new String( DAL.checkSignUp(username, email, password));
-                       myDataOutStream.writeUTF(myMassage);
-                       
-                   } catch (SQLException ex) {
-                       Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
-                   }
-                   
-               }
-                    break;
-                    
-                        
-        }
-           
-           if(type.contains(",,")){
-           for(ServerHandler handler : usersVector ){
-           handler.myDataOutStream.writeUTF(type);
-           }
-           }
-                
-               
-                
-                
-                
 
-                
+                switch (type) {
+                    case "Login":
+                        username = myDataInputStream.readUTF();
+                        password = myDataInputStream.readUTF();
+                        onlineUsers.add(new ServerSideForXoGame());
+                        try {
+                            myMassage = new String(DAL.checkSignIn(username, password));
+                            myDataOutStream.writeUTF(myMassage);
+                        } catch (SQLException ex) {
+                            Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                        GameManager.startNewGame(myDataInputStream, myDataOutStream);
+                        break;
+                    case "SignUp":
+                        username = myDataInputStream.readUTF();
+                        email = myDataInputStream.readUTF();
+                        password = myDataInputStream.readUTF();
+                         {
+                            try {
+                                myMassage = new String(DAL.checkSignUp(username, email, password));
+                                myDataOutStream.writeUTF(myMassage);
+                            } catch (SQLException ex) {
+                                Logger.getLogger(ServerSideForXoGame.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                        break;
+                }
+
+//                if (type.matches("^\\d+,\\d+,.$")) {
+//                    for (ServerHandler handler : usersVector) {
+//                        handler.myDataOutStream.writeUTF(type);
+//                    }
+//                }
+
 //                try {
 //                    myMassage = DAL.checkSignIn(username, password);
 //                } catch (SQLException ex) {
@@ -170,10 +163,7 @@ public class ServerSideForXoGame extends Application {
 //                myDataOutStream.writeUTF(myMassage);
 //              }
 //              else  myDataOutStream.writeUTF("cant loggin");
-
-
 //                if (myMassage.equals("Logged in successfully")) {
-                    
 //                } 
             } catch (IOException ex) {
                 Logger.getLogger(ServerHandler.class.getName()).log(Level.SEVERE, null, ex);

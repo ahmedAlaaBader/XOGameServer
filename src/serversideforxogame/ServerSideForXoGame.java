@@ -122,6 +122,7 @@ public class ServerSideForXoGame extends Application {
                 case "Login":
                 username = myDataInputStream.readUTF();
                 password = myDataInputStream.readUTF();
+                onlineUsers.add(new ServerSideForXoGame());
                 try {
                    myMassage = new String(DAL.checkSignIn(username, password));
                    myDataOutStream.writeUTF(myMassage);

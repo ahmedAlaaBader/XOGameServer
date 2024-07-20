@@ -6,9 +6,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
+import static javafx.application.Application.launch;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -16,6 +21,7 @@ import javafx.stage.Stage;
 public class ServerSideForXoGame extends Application {
     private ServerSocket myServerSocket;
     private Thread thread;
+      private final List<String> gameRequests = new ArrayList<>();
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -58,6 +64,15 @@ public class ServerSideForXoGame extends Application {
         statusCheckThread.setDaemon(true);
         statusCheckThread.start();
     }
+    public ArrayList<String> getActivePlayers() {
+    ArrayList<String> activePlayers = new ArrayList<>();
+    try {
+        activePlayers = DAL.getActivePlayerUsernames(); 
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return activePlayers;
+}
 
     private void startServer() {
         thread = new Thread(() -> {
@@ -137,7 +152,31 @@ public class ServerSideForXoGame extends Application {
                    }
                }
                     break;
-        }
+                    case "GetActivePlayers":
+                    ArrayList<String> activePlayers = getActivePlayers();
+                    myDataOutStream.writeInt(activePlayers.size());
+                    for (String player : activePlayers) {
+                        myDataOutStream.writeUTF(player);
+                    }
+                    break;
+                     case "SendRequest":
+                String targetPlayer = myDataInputStream.readUTF();
+                String requestor = myDataInputStream.readUTF();
+                System.out.println("Received request from " + requestor + " to " + targetPlayer);
+                synchronized (gameRequests) {
+        gameRequests.add(requestor + " wants to play with " + targetPlayer);
+    }
+               
+                myDataOutStream.writeUTF("Request received");
+                myDataOutStream.flush();
+                
+                
+                break;
+                case "GetGameRequests":
+    sendGameRequestsToClient(myDataOutStream);
+    break;
+
+               }
                 
                
                 
@@ -170,6 +209,45 @@ public class ServerSideForXoGame extends Application {
                 }
             }
         }
+       
+
+private void sendGameRequestsToClient(DataOutputStream output) {
+    synchronized (gameRequests) {
+        try {
+            if (gameRequests.isEmpty()) {
+                System.out.println("No game requests to send.");
+                output.writeInt(0);
+                output.flush();
+                return;
+            }
+
+            int requestSize = gameRequests.size();
+            output.writeInt(requestSize);
+            System.out.println("Sending " + requestSize + " game requests to client.");
+
+            for (String request : gameRequests) {
+                output.writeUTF(request);
+                System.out.println("Sent request: " + request);
+            }
+
+            output.flush();
+            System.out.println("All game requests sent successfully.");
+
+        } catch (IOException e) {
+            System.err.println("Error sending game requests to client: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
 
         // For testing purposes, replace with your actual authentication logic
 //        private final String validUsername = "Ahmed";
@@ -178,5 +256,4 @@ public class ServerSideForXoGame extends Application {
 //        private boolean authenticate(String username, String password) {
 //            return validUsername.equals(username) && validPassword.equals(password);
 //        }
-    }
-}
+    }}   

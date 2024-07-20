@@ -13,11 +13,11 @@ public class DAL {
     static ArrayList<Player> vec = new ArrayList<Player>();
 
     private static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection("jdbc:derby://localhost:1527/XOGameVerOne", "root", "root");
+        return DriverManager.getConnection("jdbc:derby://localhost:1527/XOGameVerOne1", "root", "root");
     }
 
     public static void login(String userName, String password) throws SQLException {
-        String sql = "UPDATE XOGameVerOne SET ACTIVE = true WHERE USERNAME = ? AND PASSWORD = ?";
+        String sql = "UPDATE XOGAMEVERONE SET ACTIVE = true WHERE USERNAME = ? AND PASSWORD = ?";
         try (
             Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -29,7 +29,7 @@ public class DAL {
     
 
     public static void signUp(String username, String email, String password) throws SQLException {
-        String sql = "INSERT INTO XOGameVerOne (USERNAME, EMAIL, PASSWORD) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO XOGAMEVERONE (USERNAME, EMAIL, PASSWORD) VALUES (?, ?, ?)";
         try (
             Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)){
@@ -42,7 +42,7 @@ public class DAL {
 
     public static String checkSignIn(String userName, String password) throws SQLException {
     if (!checkIsActive(userName)) {
-        String sql = "SELECT * FROM XOGameVerOne WHERE USERNAME = ?";
+        String sql = "SELECT * FROM XOGAMEVERONE WHERE USERNAME = ?";
         try (
             Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -65,7 +65,7 @@ public class DAL {
 }
 
     public static boolean checkIsActive(String userName) throws SQLException {
-        String sql = "SELECT ACTIVE FROM XOGameVerOne WHERE USERNAME = ?";
+        String sql = "SELECT ACTIVE FROM XOGAMEVERONE WHERE USERNAME = ?";
         try (
             Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -77,8 +77,8 @@ public class DAL {
     
     public static String checkSignUp(String username, String email,String password) throws SQLException {
     
-    String usernameSql = "SELECT * FROM XOGameVerOne WHERE USERNAME = ?";
-    String emailSql = "SELECT * FROM XOGameVerOne WHERE EMAIL = ?";
+    String usernameSql = "SELECT * FROM XOGAMEVERONE WHERE USERNAME = ?";
+    String emailSql = "SELECT * FROM XOGAMEVERONE WHERE EMAIL = ?";
     
     try (
         Connection conn = getConnection()) {
@@ -105,7 +105,7 @@ public class DAL {
 
     
     public static int getScore(String userName) throws SQLException {
-        String sql = "SELECT SCORE FROM XOGameVerOne WHERE USERNAME = ?";
+        String sql = "SELECT SCORE FROM XOGAMEVERONE WHERE USERNAME = ?";
         try (
             Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -116,7 +116,7 @@ public class DAL {
     }
     
     public static void updateScore(String userName, int score) throws SQLException {
-        String sql = "UPDATE XOGameVerOne SET SCORE = ? WHERE USERNAME = ?";
+        String sql = "UPDATE XOGAMEVERONE SET SCORE = ? WHERE USERNAME = ?";
         try (
             Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -128,7 +128,7 @@ public class DAL {
     
     public static ArrayList<String> getActivePlayerUsernames() throws SQLException {
     ArrayList<String> activePlayerUsernames = new ArrayList<>();
-    String sql = "SELECT USERNAME FROM XOGameVerOne WHERE ACTIVE = true";
+    String sql = "SELECT USERNAME FROM XOGAMEVERONE WHERE ACTIVE = true";
 
     try (
         Connection conn = getConnection();
@@ -146,7 +146,7 @@ public class DAL {
     
     public static ArrayList<String> getInactivePlayerUsernames() throws SQLException {
     ArrayList<String> inactivePlayerUsernames = new ArrayList<>();
-    String sql = "SELECT USERNAME FROM XOGameVerOne WHERE ACTIVE = false";
+    String sql = "SELECT USERNAME FROM XOGAMEVERONE WHERE ACTIVE = false";
 
     try (
         Connection conn = getConnection();
@@ -162,7 +162,7 @@ public class DAL {
     }
     
      public static void signOut(String userName) throws SQLException {
-        String sql = "UPDATE XOGameVerOne SET ACTIVE = false WHERE USERNAME = ?";
+        String sql = "UPDATE XOGAMEVERONE SET ACTIVE = false WHERE USERNAME = ?";
         try (
             Connection conn = getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql)) {
